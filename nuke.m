@@ -13,6 +13,7 @@
 %	CLC, CLEAR, CLOSE
 %
 % Copyright (c) 2014, Jonathan Suever
+% Forked: Santiago I. Sordo Palacios
 % All rights reserved.
 
 % Redistribution and use in source and binary forms, with or without
@@ -38,6 +39,27 @@
 % NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 % SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+% restore default paths
+restoredefaultpath
+
+% Close all varaible editors
+% https://www.mathworks.com/matlabcentral/answers/345583-close-all-variable-editor-windows
+desktop = com.mathworks.mde.desk.MLDesktop.getInstance;
+Titles  = desktop.getClientTitles;
+for k = 1:numel(Titles)
+   Client = desktop.getClient(Titles(k));     
+   if ~isempty(Client) && ...
+      strcmp(char(Client.getClass.getName), 'com.mathworks.mde.array.ArrayEditor')
+      Client.close();
+   end
+end
+
+% Close file editors
+% https://stackoverflow.com/questions/28119360/how-to-close-one-or-all-currently-open-matlab-m-files-from-matlab-command-pr
+% edtSvc  = com.mathworks.mlservices.MLEditorServices;
+% edtSvc.getEditorApplication.closeNoPrompt;
+
+% Close figures
 % Grab the root window object
 root = handle(0);
 
@@ -76,5 +98,14 @@ clear('functions')
 % Clear all the classes from Matlab's memory to reload definitions
 clear('classes')
 
+% Clear globals
+clear('global')
+
+% Clear Java
+clear('java')
+
+% Rerun startup file
+startup
+
 % Go ahead and clear out the command window display
-clc
+home
