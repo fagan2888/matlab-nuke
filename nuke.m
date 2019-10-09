@@ -13,7 +13,6 @@
 %	CLC, CLEAR, CLOSE
 %
 % Copyright (c) 2014, Jonathan Suever
-% Forked: Santiago I. Sordo Palacios
 % All rights reserved.
 
 % Redistribution and use in source and binary forms, with or without
@@ -38,41 +37,17 @@
 % LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 % NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 % SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+%
+% Forked version: Santiago I. Sordo-Palacios, 2019
 
-% restore default paths
-restoredefaultpath
-
-% Close all varaible editors
-% https://www.mathworks.com/matlabcentral/answers/345583-close-all-variable-editor-windows
-desktop = com.mathworks.mde.desk.MLDesktop.getInstance;
-Titles  = desktop.getClientTitles;
-for k = 1:numel(Titles)
-   Client = desktop.getClient(Titles(k));     
-   if ~isempty(Client) && ...
-      strcmp(char(Client.getClass.getName), 'com.mathworks.mde.array.ArrayEditor')
-      Client.close();
-   end
-end
+% Close variable editors
+closeVars();
 
 % Close file editors
-% https://stackoverflow.com/questions/28119360/how-to-close-one-or-all-currently-open-matlab-m-files-from-matlab-command-pr
-% edtSvc  = com.mathworks.mlservices.MLEditorServices;
-% edtSvc.getEditorApplication.closeNoPrompt;
+closeEdit();
 
-% Close figures
-% Grab the root window object
-root = handle(0);
-
-% Use FINDALL to grab figures with hidden handles (such as GUIDE GUIs)
-figs = findall(root, 'type', 'figure');
-figs = handle(figs);
-figs = figs(figs ~= root);
-
-% We want to use delete NOT close because we don't want CloseRequestFcn to
-% be evaluated. Also, by deleting the HANDLE(fig) and not the numeric
-% handle, we won't trigger the ObjectBeingDestroyed event which may or may
-% not have listeners
-delete(figs);
+% Close figure windows
+closeFigs();
 
 % We don't want to risk stopping the timers because we don't want StopFcn
 % to be evaluated. Using DELETE bypasses the StopFcn
@@ -82,7 +57,7 @@ warning('on', 'MATLAB:timer:deleterunning');
 
 % If there is a variable called "all" in the workspace delete it first
 if exist('all', 'var')
-    clear('all')
+    clear('all') %#ok<CLALL>
 end
 
 % Close all open file handles
@@ -93,19 +68,19 @@ clear('variables')
 
 % Unlock all m-files, mex-files so they can be cleared properly
 munlock
-clear('functions')
+clear('functions') %#ok<CLFUNC>
 
 % Clear all the classes from Matlab's memory to reload definitions
-clear('classes')
+clear('classes') %#ok<CLCLS>
 
 % Clear globals
 clear('global')
 
 % Clear Java
-clear('java')
+clear('java') %#ok<CLJAVA>
 
-% Rerun startup file
-startup
+% restore default paths and reruns tartup
+restorePath();
 
-% Go ahead and clear out the command window display
-home
+% Move command window up
+clc
